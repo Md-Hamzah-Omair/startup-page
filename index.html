@@ -17,10 +17,10 @@
             --surface2: #585b70;
             
             /* Accents */
+            --rosewater: #f5e0dc; /* NEW MAIN ACCENT */
             --mauve: #cba6f7;
             --blue: #89b4fa;
             --teal: #94e2d5;
-            --green: #a6e3a1;
             --peach: #fab387;
             --pink: #f5c2e7;
             --lavender: #b4befe;
@@ -30,6 +30,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            cursor: none; /* Hide default cursor to use custom one */
         }
 
         body {
@@ -42,6 +43,31 @@
             align-items: center;
             overflow: hidden;
             position: relative;
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none; /* Allows clicking through the cursor */
+        }
+
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--rosewater);
+        }
+
+        .cursor-outline {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgba(245, 224, 220, 0.6); /* Rosewater */
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
         }
 
         /* Background Canvas for Custom Effects */
@@ -66,8 +92,10 @@
             background: rgba(24, 24, 37, 0.55); /* Translucent Mantle */
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(203, 166, 247, 0.1); /* Subtle Mauve Border */
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            
+            /* Rosewater Outline & Glow */
+            border: 1px solid rgba(245, 224, 220, 0.4); 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 25px rgba(245, 224, 220, 0.08);
         }
 
         /* Clock & Date Section */
@@ -79,8 +107,8 @@
             font-size: 4rem;
             font-weight: 700;
             letter-spacing: -1px;
-            color: var(--mauve);
-            text-shadow: 0 0 20px rgba(203, 166, 247, 0.2);
+            color: var(--rosewater); /* Changed to Rosewater */
+            text-shadow: 0 0 20px rgba(245, 224, 220, 0.3);
             line-height: 1.1;
         }
 
@@ -118,8 +146,8 @@
         }
 
         .search-form input:focus {
-            border-color: var(--blue);
-            box-shadow: 0 0 15px rgba(137, 180, 250, 0.25);
+            border-color: var(--rosewater); /* Changed to Rosewater */
+            box-shadow: 0 0 15px rgba(245, 224, 220, 0.25);
             background-color: var(--crust);
         }
 
@@ -142,7 +170,7 @@
 
         .link-group:hover {
             transform: translateY(-4px);
-            border-color: rgba(148, 226, 213, 0.2); /* Accent highlight */
+            border-color: rgba(245, 224, 220, 0.3); /* Rosewater highlight on hover */
         }
 
         .group-title {
@@ -156,7 +184,7 @@
         }
 
         /* Custom Accent Colors for Group Headers */
-        .group-dev { color: var(--blue); }
+        .group-dev { color: var(--rosewater); } /* Changed to Rosewater */
         .group-social { color: var(--pink); }
         .group-media { color: var(--peach); }
         .group-utils { color: var(--teal); }
@@ -182,11 +210,15 @@
         .links-list a:hover {
             background-color: var(--surface1);
             padding-left: 12px;
-            color: var(--lavender);
+            color: var(--rosewater);
         }
     </style>
 </head>
 <body>
+
+    <!-- Custom Cursor Elements -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
 
     <canvas id="bg-canvas"></canvas>
 
@@ -243,11 +275,63 @@
     </div>
 
     <script>
-        // --- 1. CLOCK & DATE LOGIC ---
+        // --- 1. CUSTOM CURSOR LOGIC ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        const interactables = document.querySelectorAll('a, input');
+
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let outlineX = mouseX;
+        let outlineY = mouseY;
+
+        // Track mouse position
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Instantly snap the center dot to the cursor
+            cursorDot.style.left = `${mouseX}px`;
+            cursorDot.style.top = `${mouseY}px`;
+        });
+
+        // Smooth trailing animation for the outline ring
+        function animateCursor() {
+            let distX = mouseX - outlineX;
+            let distY = mouseY - outlineY;
+            
+            // The 0.15 multiplier controls the speed/lag of the trailing ring
+            outlineX += distX * 0.15;
+            outlineY += distY * 0.15;
+            
+            cursorOutline.style.left = `${outlineX}px`;
+            cursorOutline.style.top = `${outlineY}px`;
+            
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Hover effects: Expand cursor ring when hovering over links or inputs
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorOutline.style.width = '48px';
+                cursorOutline.style.height = '48px';
+                cursorOutline.style.backgroundColor = 'rgba(245, 224, 220, 0.15)';
+                cursorOutline.style.borderColor = 'rgba(245, 224, 220, 0.8)';
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorOutline.style.width = '32px';
+                cursorOutline.style.height = '32px';
+                cursorOutline.style.backgroundColor = 'transparent';
+                cursorOutline.style.borderColor = 'rgba(245, 224, 220, 0.6)';
+            });
+        });
+
+
+        // --- 2. CLOCK & DATE LOGIC ---
         function updateClock() {
             const now = new Date();
             
-            // Format time
             let hours = now.getHours();
             let minutes = now.getMinutes();
             hours = hours < 10 ? '0' + hours : hours;
@@ -255,7 +339,6 @@
             
             document.getElementById('clock').textContent = `${hours}:${minutes}`;
 
-            // Format date
             const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
             document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
         }
@@ -263,7 +346,7 @@
         updateClock();
 
 
-        // --- 2. INTERACTIVE CANVAS BACKGROUND EFFECT ---
+        // --- 3. INTERACTIVE CANVAS BACKGROUND EFFECT ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
 
@@ -275,10 +358,10 @@
             height = canvas.height = window.innerHeight;
         });
 
-        // Soft Glowing Orb configuration mimicking Catppuccin accents
+        // Replaced Blue with Rosewater in the background mix
         const colors = [
-            'rgba(203, 166, 247, 0.16)', // Mauve
-            'rgba(137, 180, 250, 0.14)', // Blue
+            'rgba(245, 224, 220, 0.16)', // Rosewater (Main)
+            'rgba(203, 166, 247, 0.14)', // Mauve
             'rgba(148, 226, 213, 0.14)', // Teal
             'rgba(250, 179, 135, 0.12)', // Peach
             'rgba(245, 194, 231, 0.14)'  // Pink
@@ -286,10 +369,10 @@
 
         class Orb {
             constructor() {
-                this.radius = Math.random() * 150 + 150; // Large, soft blur shapes
+                this.radius = Math.random() * 150 + 150;
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.6; // Extremely slow, calming drift
+                this.vx = (Math.random() - 0.5) * 0.6;
                 this.vy = (Math.random() - 0.5) * 0.6;
                 this.color = colors[Math.floor(Math.random() * colors.length)];
             }
@@ -298,7 +381,6 @@
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Seamless boundary wrapping
                 if (this.x < -this.radius) this.x = width + this.radius;
                 if (this.x > width + this.radius) this.x = -this.radius;
                 if (this.y < -this.radius) this.y = height + this.radius;
@@ -306,10 +388,9 @@
             }
 
             draw() {
-                // Create a radial gradient to give a blurred, atmospheric orb feel
                 let gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
                 gradient.addColorStop(0, this.color);
-                gradient.addColorStop(1, 'rgba(30, 30, 46, 0)'); // Fades fully into Base background
+                gradient.addColorStop(1, 'rgba(30, 30, 46, 0)');
 
                 ctx.fillStyle = gradient;
                 ctx.beginPath();
@@ -318,20 +399,16 @@
             }
         }
 
-        // Initialize background orbs
         const orbs = [];
-        const orbCount = 12; // Balanced for high performance and premium visuals
+        const orbCount = 12;
         for (let i = 0; i < orbCount; i++) {
             orbs.push(new Orb());
         }
 
-        // Animation Loop
         function animate() {
-            // Paint underlying background color
             ctx.fillStyle = '#1e1e2e'; 
             ctx.fillRect(0, 0, width, height);
 
-            // Update & Render each glowing orb
             orbs.forEach(orb => {
                 orb.update();
                 orb.draw();
