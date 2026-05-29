@@ -17,7 +17,7 @@
             --surface2: #585b70;
             
             /* Accents */
-            --rosewater: #f5e0dc; /* NEW MAIN ACCENT */
+            --rosewater: #f5e0dc;
             --mauve: #cba6f7;
             --blue: #89b4fa;
             --teal: #94e2d5;
@@ -30,7 +30,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            cursor: none; /* Hide default cursor to use custom one */
+            cursor: none; /* Hide default cursor */
         }
 
         body {
@@ -46,8 +46,7 @@
         }
 
         /* --- CUSTOM CURSOR --- */
-        .cursor-dot,
-        .cursor-outline {
+        .cursor-dot {
             position: fixed;
             top: 0;
             left: 0;
@@ -55,19 +54,17 @@
             border-radius: 50%;
             z-index: 9999;
             pointer-events: none; /* Allows clicking through the cursor */
-        }
-
-        .cursor-dot {
-            width: 6px;
-            height: 6px;
             background-color: var(--rosewater);
-        }
-
-        .cursor-outline {
-            width: 32px;
-            height: 32px;
-            border: 2px solid rgba(245, 224, 220, 0.6); /* Rosewater */
-            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out, border-color 0.2s ease-out;
+            
+            /* Default size (bigger than before) */
+            width: 12px;
+            height: 12px;
+            
+            /* Smooth growth transition */
+            transition: width 0.2s ease-out, height 0.2s ease-out, background-color 0.2s ease-out;
+            
+            /* Optional small glow to make it stand out */
+            box-shadow: 0 0 10px rgba(245, 224, 220, 0.4);
         }
 
         /* Background Canvas for Custom Effects */
@@ -107,7 +104,7 @@
             font-size: 4rem;
             font-weight: 700;
             letter-spacing: -1px;
-            color: var(--rosewater); /* Changed to Rosewater */
+            color: var(--rosewater);
             text-shadow: 0 0 20px rgba(245, 224, 220, 0.3);
             line-height: 1.1;
         }
@@ -146,7 +143,7 @@
         }
 
         .search-form input:focus {
-            border-color: var(--rosewater); /* Changed to Rosewater */
+            border-color: var(--rosewater);
             box-shadow: 0 0 15px rgba(245, 224, 220, 0.25);
             background-color: var(--crust);
         }
@@ -184,7 +181,7 @@
         }
 
         /* Custom Accent Colors for Group Headers */
-        .group-dev { color: var(--rosewater); } /* Changed to Rosewater */
+        .group-dev { color: var(--rosewater); }
         .group-social { color: var(--pink); }
         .group-media { color: var(--peach); }
         .group-utils { color: var(--teal); }
@@ -216,9 +213,8 @@
 </head>
 <body>
 
-    <!-- Custom Cursor Elements -->
+    <!-- Custom Cursor Element (Outline removed) -->
     <div class="cursor-dot"></div>
-    <div class="cursor-outline"></div>
 
     <canvas id="bg-canvas"></canvas>
 
@@ -267,7 +263,7 @@
                 <ul class="links-list">
                     <li><a href="https://gmail.com" target="_blank">Gmail</a></li>
                     <li><a href="https://chatgpt.com" target="_blank">ChatGPT</a></li>
-                    <li><a href="https://notion.so" target="_blank">Notion</a></li>
+                    <li><a href="https://gemini.com" target="_blank">Gemini</a></li>
                 </ul>
             </div>
 
@@ -277,53 +273,26 @@
     <script>
         // --- 1. CUSTOM CURSOR LOGIC ---
         const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
         const interactables = document.querySelectorAll('a, input');
-
-        let mouseX = window.innerWidth / 2;
-        let mouseY = window.innerHeight / 2;
-        let outlineX = mouseX;
-        let outlineY = mouseY;
 
         // Track mouse position
         window.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            // Instantly snap the center dot to the cursor
-            cursorDot.style.left = `${mouseX}px`;
-            cursorDot.style.top = `${mouseY}px`;
+            // Instantly snap the dot to the cursor (no trail for the single dot)
+            cursorDot.style.left = `${e.clientX}px`;
+            cursorDot.style.top = `${e.clientY}px`;
         });
 
-        // Smooth trailing animation for the outline ring
-        function animateCursor() {
-            let distX = mouseX - outlineX;
-            let distY = mouseY - outlineY;
-            
-            // The 0.15 multiplier controls the speed/lag of the trailing ring
-            outlineX += distX * 0.15;
-            outlineY += distY * 0.15;
-            
-            cursorOutline.style.left = `${outlineX}px`;
-            cursorOutline.style.top = `${outlineY}px`;
-            
-            requestAnimationFrame(animateCursor);
-        }
-        animateCursor();
-
-        // Hover effects: Expand cursor ring when hovering over links or inputs
+        // Hover effects: Make the dot grow when hovering over links or inputs
         interactables.forEach(el => {
             el.addEventListener('mouseenter', () => {
-                cursorOutline.style.width = '48px';
-                cursorOutline.style.height = '48px';
-                cursorOutline.style.backgroundColor = 'rgba(245, 224, 220, 0.15)';
-                cursorOutline.style.borderColor = 'rgba(245, 224, 220, 0.8)';
+                cursorDot.style.width = '32px'; /* Growth size */
+                cursorDot.style.height = '32px';
+                cursorDot.style.backgroundColor = 'rgba(245, 224, 220, 0.4)'; /* Slightly translucent on hover */
             });
             el.addEventListener('mouseleave', () => {
-                cursorOutline.style.width = '32px';
-                cursorOutline.style.height = '32px';
-                cursorOutline.style.backgroundColor = 'transparent';
-                cursorOutline.style.borderColor = 'rgba(245, 224, 220, 0.6)';
+                cursorDot.style.width = '12px'; /* Back to normal */
+                cursorDot.style.height = '12px';
+                cursorDot.style.backgroundColor = 'var(--rosewater)';
             });
         });
 
@@ -358,9 +327,8 @@
             height = canvas.height = window.innerHeight;
         });
 
-        // Replaced Blue with Rosewater in the background mix
         const colors = [
-            'rgba(245, 224, 220, 0.16)', // Rosewater (Main)
+            'rgba(245, 224, 220, 0.16)', // Rosewater
             'rgba(203, 166, 247, 0.14)', // Mauve
             'rgba(148, 226, 213, 0.14)', // Teal
             'rgba(250, 179, 135, 0.12)', // Peach
